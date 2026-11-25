@@ -149,6 +149,7 @@ print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", "
       <div class="controls">
         <button onclick="runCode()">Kjør</button>
         <button class="secondary" onclick="clearOutput()">Tøm output</button>
+        <button class="secondary" onclick="downloadCode()">Last ned</button>
         <span class="status" id="status">Klar</span>
       </div>
     </div>
@@ -231,6 +232,18 @@ print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", "
         outputEl.textContent += "\n" + err.toString();
         setStatus("Feil", "error");
       });
+    }
+
+    function downloadCode() {
+      const blob = new Blob([editor.getValue()], { type: "text/x-python;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "program.py";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
     }
 
     function clearOutput() {
