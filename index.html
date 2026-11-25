@@ -149,7 +149,8 @@ print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", "
       <div class="controls">
         <button onclick="runCode()">Kjør</button>
         <button class="secondary" onclick="clearOutput()">Tøm output</button>
-        <button class="secondary" onclick="downloadCode()">Last ned</button>
+        <button class="secondary" onclick="downloadCode()">Last ned .py</button>
+        <button class="secondary" onclick="saveHtml()">Lagre som HTML</button>
         <span class="status" id="status">Klar</span>
       </div>
     </div>
@@ -161,6 +162,9 @@ print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", "
   </div>
 
   <script>
+    // Kopi av siden før editoren starter, brukes av "Lagre som HTML"
+    const pageTemplate = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
     const statusEl = document.getElementById("status");
     const outputEl = document.getElementById("output");
 
@@ -240,6 +244,24 @@ print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", "
       const a = document.createElement("a");
       a.href = url;
       a.download = "program.py";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function saveHtml() {
+      const escaped = editor.getValue()
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const html = pageTemplate.replace(
+        /(<textarea id="code">)[\s\S]*?(<\/textarea>)/,
+        function(m, a, b) { return a + escaped + b; }
+      );
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "python-i-nettleseren.html";
       document.body.appendChild(a);
       a.click();
       a.remove();
