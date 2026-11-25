@@ -130,16 +130,18 @@
       <header>
         <span>Kode</span>
       </header>
-      <textarea id="code">svar = input("Hva er beløpet?")
+      <textarea id="code">svar = input("Beløp? ")
 verdi = float(svar)
-svar = input("Hva er den årlige endringen i prosent?")
+svar = input("Årlige endringen i prosent? ")
 prosent = float(svar)
+svar = input("Antall år? ")
+tid = float(svar)
 vekstfaktor = 1 + prosent / 100
 år = 0
-while år < 5:
+while år < tid:
     år = år + 1
     verdi = verdi * vekstfaktor
-print("Etter", int(år), "år er verdien", int(verdi), "kr")</textarea>
+    print("Etter", int(år), "år er verdien", int(verdi), "kr")</textarea>
       <div class="controls">
         <button onclick="runCode()">Kjør</button>
         <button class="secondary" onclick="clearOutput()">Tøm output</button>
