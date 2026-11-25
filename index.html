@@ -145,7 +145,7 @@ while år < tid:
     verdi = verdi * vekstfaktor
     print("Etter", int(år), "år er verdien", int(verdi), "kr")
 print()
-print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", round(verdi/startverdi, 4), "hvilket svarer til", round((verdi/startverdi-1)*100, 2), "% endring.")</textarea>
+print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", "{:.4f}".format(verdi/startverdi), "hvilket svarer til", "{:.2f}".format((verdi/startverdi-1)*100), "% endring.")</textarea>
       <div class="controls">
         <button onclick="runCode()">Kjør</button>
         <button class="secondary" onclick="clearOutput()">Tøm output</button>
