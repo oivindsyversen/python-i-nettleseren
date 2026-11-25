@@ -108,11 +108,22 @@
     .status.running { color: #4a6cf7; }
     .status.error { color: #f48771; }
     .status.done { color: #89d185; }
+    .inline-input {
+      background: #2d2d30;
+      color: #ffffff;
+      border: 1px solid #4a6cf7;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 16px;
+      margin-left: 6px;
+      min-width: 140px;
+    }
   </style>
 </head>
 <body>
   <h1>Python i nettleseren</h1>
-  <p class="subtitle">Skriv kode med syntaksfarger og trykk <strong>Kjør</strong> (eller Ctrl/Cmd+Enter). Støtter <code>input()</code>.</p>
+  <p class="subtitle">Skriv kode med syntaksfarger og trykk <strong>Kjør</strong> (eller Ctrl/Cmd+Enter). Støtter <code>input()</code>: skriv svaret i feltet under Output og trykk Enter.</p>
 
   <div class="container">
     <div class="panel">
@@ -183,7 +194,25 @@ print("Etter", int(år), "år er verdien", int(verdi), "kr")</textarea>
         output: outf,
         read: builtinRead,
         inputfun: function(prompt) {
-          return window.prompt(prompt);
+          return new Promise(function(resolve) {
+            outputEl.textContent += prompt;
+            const field = document.createElement("input");
+            field.type = "text";
+            field.className = "inline-input";
+            field.setAttribute("autocomplete", "off");
+            field.setAttribute("autocapitalize", "off");
+            outputEl.appendChild(field);
+            field.focus();
+            field.addEventListener("keydown", function(e) {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const value = field.value;
+                field.remove();
+                outputEl.appendChild(document.createTextNode(value + "\n"));
+                resolve(value);
+              }
+            });
+          });
         },
         inputfunTakesPrompt: true
       });
