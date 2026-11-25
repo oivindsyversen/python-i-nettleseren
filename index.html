@@ -137,12 +137,14 @@ svar = input("Årlig endring i prosent? ")
 prosent = float(svar)
 svar = input("Antall år? ")
 tid = float(svar)
+print()
 vekstfaktor = 1 + prosent / 100
 år = 0
 while år < tid:
     år = år + 1
     verdi = verdi * vekstfaktor
     print("Etter", int(år), "år er verdien", int(verdi), "kr")
+print()
 print("Vekstfaktor for denne perioden på", int(år), "år, i sin helhet, er", round(verdi/startverdi, 4), "hvilket svarer til", round((verdi/startverdi-1)*100, 2), "% endring.")</textarea>
       <div class="controls">
         <button onclick="runCode()">Kjør</button>
