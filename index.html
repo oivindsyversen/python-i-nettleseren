@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python i nettleseren</title>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+
+  <!-- Skulpt -->
+  <script src="https://skulpt.org/js/skulpt.min.js"></script>
+  <script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #e0e0e0;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 1.6rem; }
+    .subtitle { color: #aaa; margin-bottom: 20px; }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: #252526;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+    }
+    .panel header {
+      background: #2d2d30;
+      padding: 10px 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #3e3e42;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel header span { font-size: 0.95rem; }
+
+    .CodeMirror {
+      height: 420px !important;
+      font-size: 14px;
+      font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", ui-monospace, Consolas, monospace;
+    }
+
+    #output {
+      flex: 1;
+      min-height: 420px;
+      margin: 0;
+      padding: 12px 16px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow: auto;
+      line-height: 1.5;
+    }
+
+    .controls {
+      padding: 10px 16px;
+      background: #2d2d30;
+      border-top: 1px solid #3e3e42;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      background: #4a6cf7;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: #3a5ce5; }
+    button.secondary { background: #5a5a5a; }
+    button.secondary:hover { background: #4a4a4a; }
+
+    .status {
+      margin-left: auto;
+      font-size: 13px;
+      color: #aaa;
+    }
+    .status.running { color: #4a6cf7; }
+    .status.error { color: #f48771; }
+    .status.done { color: #89d185; }
+  </style>
+</head>
+<body>
+  <h1>Python i nettleseren</h1>
+  <p class="subtitle">Skriv kode med syntaksfarger og trykk <strong>Kjør</strong> (eller Ctrl/Cmd+Enter). Støtter <code>input()</code>.</p>
+
+  <div class="container">
+    <div class="panel">
+      <header>
+        <span>Kode</span>
+      </header>
+      <textarea id="code">svar = input("Verdi nå = ")
+verdi = float(svar)
+svar = input("Verdiendring i prosent = ")
+prosent = float(svar)
+vekstfaktor = 1 + prosent / 100
+år = 0
+while år < 5:
+    år = år + 1
+    verdi = verdi * vekstfaktor
+print("Etter", int(år), "år er verdien", int(verdi), "kr")</textarea>
+      <div class="controls">
+        <button onclick="runCode()">Kjør</button>
+        <button class="secondary" onclick="clearOutput()">Tøm output</button>
+        <span class="status" id="status">Klar</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <header><span>Output</span></header>
+      <pre id="output"></pre>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const outputEl = document.getElementById("output");
+
+    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      mode: "python",
+      theme: "monokai",
+      lineNumbers: true,
+      indentUnit: 4,
+      tabSize: 4,
+      indentWithTabs: false,
+      lineWrapping: true,
+      extraKeys: {
+        "Ctrl-Enter": runCode,
+        "Cmd-Enter": runCode
+      }
+    });
+
+    function setStatus(text, cls) {
+      statusEl.textContent = text;
+      statusEl.className = "status " + (cls || "");
+    }
+
+    function outf(text) {
+      outputEl.textContent += text;
+    }
+
+    function builtinRead(x) {
+      if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+        throw "File not found: '" + x + "'";
+      return Sk.builtinFiles["files"][x];
+    }
+
+    function runCode() {
+      outputEl.textContent = "";
+      setStatus("Kjører…", "running");
+
+      Sk.configure({
+        output: outf,
+        read: builtinRead,
+        inputfun: function(prompt) {
+          return window.prompt(prompt);
+        },
+        inputfunTakesPrompt: true
+      });
+
+      Sk.misceval.asyncToPromise(function() {
+        return Sk.importMainWithBody("<stdin>", false, editor.getValue(), true);
+      }).then(function() {
+        setStatus("Ferdig", "done");
+      }).catch(function(err) {
+        outputEl.textContent += "\n" + err.toString();
+        setStatus("Feil", "error");
+      });
+    }
+
+    function clearOutput() {
+      outputEl.textContent = "";
+      setStatus("Klar");
+    }
+
+    // Initial focus
+    editor.focus();
+  </script>
+</body>
+</html>
