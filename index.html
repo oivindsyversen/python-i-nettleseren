@@ -132,7 +132,8 @@
       </header>
       <textarea id="code">svar = input("Beløp? ")
 verdi = float(svar)
-svar = input("Årlige endringen i prosent? ")
+startverdi = verdi
+svar = input("Årlig endring i prosent? ")
 prosent = float(svar)
 svar = input("Antall år? ")
 tid = float(svar)
@@ -141,7 +142,8 @@ vekstfaktor = 1 + prosent / 100
 while år < tid:
     år = år + 1
     verdi = verdi * vekstfaktor
-    print("Etter", int(år), "år er verdien", int(verdi), "kr")</textarea>
+    print("Etter", int(år), "år er verdien", int(verdi), "kr")
+print("Vekstfaktor for perioden på", int(år), "år i sin helhet:", round(verdi/startverdi, 3), "hvilket svarer til", round((verdi/startverdi-1)*100, 1), "prosent endring.")</textarea>
       <div class="controls">
         <button onclick="runCode()">Kjør</button>
         <button class="secondary" onclick="clearOutput()">Tøm output</button>
